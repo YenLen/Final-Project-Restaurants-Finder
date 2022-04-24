@@ -12,11 +12,11 @@ from geopy.geocoders import Nominatim
 
 
 #GOOGLE MAP
-GOOGLE_API_KEY = 'AIzaSyBaGXPgQsHYD4jlpgsQ5SzbptWLw6VPvn8'
+GOOGLE_API_KEY = 'secret'
 map_clinet = googlemaps.Client(GOOGLE_API_KEY)
 
 #YELP FUSION
-YELP_API_KEY = "88C2OoOFgFaZGrlTPb6U9b5CIypKY9e-yz74Lh9RS1Ja6w_f_cudHi6FVS8L-OzwWsxSC0_vyHORkx2d_tCl2VFxSloBXKQLw5nk7IX_MJvYcru-P2GIcb0Q1MJcYnYx"
+YELP_API_KEY = "secret"
 ENDPOINT = 'https://api.yelp.com/v3/businesses/search' #search business information
 HEADERS = {'Authorization': 'bearer %s' %YELP_API_KEY}
 
@@ -126,7 +126,7 @@ def yelp_restaurant_list(location):
     'location': location.replace(' ', '+')
     }
 
-    response = requests.get(url = ENDPOINT, params= PARAMETERS, headers= HEADERS) #搜business資料
+    response = requests.get(url = ENDPOINT, params= PARAMETERS, headers= HEADERS) 
     yelp_results = response.json()
 
     yelp_data = []
