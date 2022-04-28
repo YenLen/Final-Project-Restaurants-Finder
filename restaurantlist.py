@@ -1,4 +1,4 @@
-# from final import API_KEY
+from distutils.log import error
 import pandas as pd
 import numpy as np
 import requests
@@ -12,11 +12,11 @@ from geopy.geocoders import Nominatim
 
 
 #GOOGLE MAP
-GOOGLE_API_KEY = 'secret'
+GOOGLE_API_KEY = 'AIzaSyBaGXPgQsHYD4jlpgsQ5SzbptWLw6VPvn8'
 map_clinet = googlemaps.Client(GOOGLE_API_KEY)
 
 #YELP FUSION
-YELP_API_KEY = "secret"
+YELP_API_KEY = "88C2OoOFgFaZGrlTPb6U9b5CIypKY9e-yz74Lh9RS1Ja6w_f_cudHi6FVS8L-OzwWsxSC0_vyHORkx2d_tCl2VFxSloBXKQLw5nk7IX_MJvYcru-P2GIcb0Q1MJcYnYx"
 ENDPOINT = 'https://api.yelp.com/v3/businesses/search' #search business information
 HEADERS = {'Authorization': 'bearer %s' %YELP_API_KEY}
 
@@ -24,6 +24,13 @@ HEADERS = {'Authorization': 'bearer %s' %YELP_API_KEY}
 def save_cache(cache, filename):
     """
     Saves the dic of restaurant list
+    Parameters
+    ----------
+    cache_dict: dict
+        The dictionary to save
+    Returns
+    -------
+    None
     """
     cache_file = open(filename, 'w')
     file_contents = json.dumps(cache)
@@ -77,6 +84,7 @@ def restaurant_review(place_id):
         detail_url = "https://maps.googleapis.com/maps/api/place/details/json?place_id="
         response = requests.get(detail_url + place_id + '&rating=5&key=' + GOOGLE_API_KEY)
         results = response.json()
+        
         restaurant_review = []
 
         for i in range(len(results['result']['reviews'])):
@@ -145,20 +153,35 @@ def main():
     # Ask the user to enter a city
     address = input("Enter a city: ")
     address_laglug = coordinate_generator(address)
-    
-    yelp_restaurants = yelp_restaurant_list(address)
-    # Save Yelpp data
-    save_cache(yelp_restaurants, 'Yelp_' + address + '.json')
+    yelp_json = 'Yelp_{}.json'.format(address)
+    google_json = 'GoogleMap_{}.json'.format(address)
 
-    #Transfer address to coordinate for Google Map API
+    yelp_restaurants = None
+    # Check current data file
+    try:
+        with open(yelp_json,'r') as yelp_file:
+            yelp_restaurants = json.loads(yelp_file.read())
+            
+    except:
+        yelp_restaurants = yelp_restaurant_list(address)
+        # Save Yelp data
+        save_cache(yelp_restaurants, 'Yelp_' + address + '.json')
+    
+    
+    #Transfer address to coordinate for Google Map API   
     coordinate_str = str(address_laglug.latitude) + ', '+  str(address_laglug.longitude)
     restaurants = restaurant_list(coordinate_str)
-    for restaurant in restaurants:
-        review = restaurant_review(restaurant['place_id'])
-        restaurant['review'] = review
-        # print(restaurant['name'])
-    # Save Google Map data
-    save_cache(restaurants, 'GoogleMap_' + address + '.json') 
+
+    # Check current data file
+    try:
+        with open(google_json,'r') as google_file:
+            restaurants = json.loads(google_file.read())
+    except:        
+        for restaurant in restaurants:
+            review = restaurant_review(restaurant['place_id'])
+            restaurant['review'] = review
+        # Save Google Map data
+        save_cache(restaurants, 'GoogleMap_' + address + '.json')  
 
 
     # Ask Goolge Map or Yelp?
